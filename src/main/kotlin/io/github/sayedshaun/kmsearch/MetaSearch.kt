@@ -68,13 +68,17 @@ public class MetaSearch(
     }
 
     public companion object {
-        /** The engines that work without a key or a browser: Wikipedia (official API) and DuckDuckGo (HTML page, best effort). */
+        /** The engines that work without a key or a browser: Wikipedia (official API), DuckDuckGo (HTML page, best effort) and Mwmbl (public JSON API). */
         public fun default(
             http: okhttp3.OkHttpClient,
             userAgent: String = DEFAULT_USER_AGENT,
             cache: ResultCache? = ResultCache(),
         ): MetaSearch = MetaSearch(
-            listOf(io.github.sayedshaun.kmsearch.engines.WikipediaEngine(http, userAgent), io.github.sayedshaun.kmsearch.engines.DuckDuckGoEngine(http, userAgent)),
+            listOf(
+                io.github.sayedshaun.kmsearch.engines.WikipediaEngine(http, userAgent),
+                io.github.sayedshaun.kmsearch.engines.DuckDuckGoEngine(http, userAgent),
+                io.github.sayedshaun.kmsearch.engines.MwmblEngine(http, userAgent),
+            ),
             cache = cache,
         )
     }

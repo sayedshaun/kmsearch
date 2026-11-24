@@ -67,4 +67,28 @@ class EnginesTest {
         assertEquals("A language", r[0].snippet)
         assertTrue(server.takeRequest().path!!.contains("s=11"))
     }
+
+    @Test fun `mwmbl joins styled spans into plain title and snippet`() = runBlocking {
+        server.enqueue(MockResponse().setBody("""[{"url":"https://t.test/sylhet","title":[{"value":"Sylhet","is_bold":true},{"value":" Travel Guide"}],"extract":[{"value":"Lush "},{"value":"hills"}]},{"url":"","title":[]}]"""))
+        val r = MwmblEngine(http, baseUrl = base).search(SearchQuery("sylhet"))
+        assertEquals(1, r.size)
+        assertEquals("Sylhet Travel Guide", r[0].title)
+        assertEquals("Lush hills", r[0].snippet)
+        assertTrue(server.takeRequest().path!!.contains("s=sylhet"))
+    }
+
+    @Test fun `wikidata gives the entity page with its description`() = runBlocking {
+        server.enqueue(MockResponse().setBody("""{"search":[{"id":"Q466221","label":"Sylhet","description":"city in Bangladesh"}]}"""))
+        val r = WikidataEngine(http, baseUrl = base).search(SearchQuery("sylhet"))
+        assertEquals("$base/wiki/Q466221", r[0].url)
+        assertEquals("city in Bangladesh", r[0].snippet)
+    }
+
+    @Test fun `nominatim links to the openstreetmap page and names the place`() = runBlocking {
+        server.enqueue(MockResponse().setBody("""[{"osm_type":"relation","osm_id":3921222,"name":"Sylhet Division","display_name":"Sylhet Division, Bangladesh"},{"osm_type":"","osm_id":0}]"""))
+        val r = NominatimEngine(http, baseUrl = base).search(SearchQuery("sylhet"))
+        assertEquals(listOf("https://www.openstreetmap.org/relation/3921222"), r.map { it.url })
+        assertEquals("Sylhet Division", r[0].title)
+        assertEquals("Sylhet Division, Bangladesh", r[0].snippet)
+    }
 }

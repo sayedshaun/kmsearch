@@ -25,11 +25,18 @@ response.statuses.filter { !it.ok }.forEach { println("${it.engineId}: ${it.erro
 - **Status per engine** in every response, so your UI can say which sources failed.
 
 ## Engines
-| Engine | Source | Notes |
-|---|---|---|
-| `WikipediaEngine` | official API | keyless, stable |
-| `DuckDuckGoEngine` | HTML page | no official API; can be blocked or change. Check their terms |
-| `MojeekEngine` | HTML page | answers unknown clients with a JavaScript challenge, so it reports "blocked" and is not in `MetaSearch.default`. Use Mojeek's official API in an app |
+No API keys anywhere.
+
+| Engine | Source | In `MetaSearch.default` | Notes |
+|---|---|---|---|
+| `WikipediaEngine` | official API | yes | stable |
+| `DuckDuckGoEngine` | HTML page | yes | no official API; can be blocked or change. Check their terms |
+| `MwmblEngine` | public JSON API | yes | open-source, non-profit web index; small, so few results |
+| `WikidataEngine` | official API | no | "what is X": an entity and a one-line description |
+| `NominatimEngine` | OpenStreetMap geocoder | no | places for maps/travel apps. Follow the [usage policy](https://operations.osmfoundation.org/policies/nominatim/) (1 request/s, your own `userAgent`) and credit © OpenStreetMap contributors |
+| `MojeekEngine` | HTML page | no | answers unknown clients with a JavaScript challenge, so it reports "blocked" |
+
+Tested against the live services (Wikipedia, DuckDuckGo and Mwmbl all answered in about a second).
 
 Add your own by implementing `Engine` (`id` and `suspend fun search(query): List<EngineResult>`).
 HTML engines break when sites change; treat them as best-effort and prefer official APIs.
